@@ -1,3 +1,4 @@
+import com.fastsky.bean.BeanRegister;
 import com.fastsky.socket.server.FastSkyServer;
 import com.starry.service.impl.HelloServiceImpl;
 
@@ -11,7 +12,7 @@ import com.starry.service.impl.HelloServiceImpl;
 public class Main {
     public static void main(String[] args){
         FastSkyServer skyServer = new FastSkyServer();
-        skyServer.registerBeans(HelloServiceImpl.class);
+        BeanRegister.getInstance().registerBeans(HelloServiceImpl.class);
         skyServer.start();
 
     }

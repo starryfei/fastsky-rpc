@@ -1,15 +1,16 @@
-package com.fastsky.netty.bean;
+package com.fastsky.bean;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
- * ClassName: DataBean
- * Description: TODO
+ * ClassName: RcpRequest
+ * Description: Rcp    请求bean
  *
  * @author: starryfei
  * @date: 2019-01-24 19:13
  **/
-public class DataBean implements Serializable {
+public class RcpRequest implements Serializable {
     private static final long serialVersionUID = 4228051882802183587L;
 
     private String className;
@@ -48,5 +49,15 @@ public class DataBean implements Serializable {
     public void setArgs(Object[] args) {
         this.args = args;
 
+    }
+
+    @Override
+    public String toString() {
+        return "RcpRequest{" +
+                "className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", argType=" + Arrays.toString(argType) +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 }

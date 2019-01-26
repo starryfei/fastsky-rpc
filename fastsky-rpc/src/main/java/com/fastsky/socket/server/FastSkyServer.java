@@ -1,13 +1,17 @@
 package com.fastsky.socket.server;
 
+import com.fastsky.bean.BeanRegister;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ClassName: FastSkyServer
@@ -18,12 +22,11 @@ import java.util.concurrent.*;
  **/
 public class FastSkyServer {
     private static ExecutorService pool;
-    private Map<String,Class<?>> classMap ;
-
+    private static BeanRegister beanRegister = BeanRegister.getInstance();
     /**
      * 启动服务
      */
-    public  void start() {
+    public void start() {
         try {
             ServerSocket serverSocket = new ServerSocket(9122);
             System.out.println("server start success");
@@ -60,7 +63,7 @@ public class FastSkyServer {
             Class[] parTypes = (Class[])input.readObject();
             Class[] args = (Class[]) input.readObject();
 
-            Class<?> clazz = classMap.get(className);
+            Class<?> clazz = beanRegister.getBean(className);
             object = clazz.getMethod(methodName,parTypes).invoke(clazz.newInstance(),args);
             out.writeObject(object);
 
@@ -75,20 +78,7 @@ public class FastSkyServer {
         }
     }
 
-    /**
-     * 注册服务
-     * @param clazz
-     */
-    public void registerBeans(Class<?> clazz) {
-        if (classMap == null) {
-            classMap = new ConcurrentHashMap<>(16);
-        }
-        for (Class<?> cla : clazz.getInterfaces()) {
-            System.out.println(cla.getName());
-            classMap.put(cla.getName(), clazz);
-        }
 
-    }
 
     /**
      * 关闭服务

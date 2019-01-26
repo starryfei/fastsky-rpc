@@ -1,12 +1,10 @@
 package com.fastsky.netty.client;
 
-import com.fastsky.netty.handler.NettyClienthandler;
-import com.fastsky.netty.bean.BeanFactory;
-import com.fastsky.netty.bean.DataBean;
+import com.fastsky.bean.RcpRequest;
+import com.fastsky.bean.RcpResponse;
+import com.fastsky.bean.BeanFactory;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -14,21 +12,22 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
  * ClassName: FastSkyNettyClient
- * Description: TODO
+ * Description: Netty 消费端调用服务实现
  *
  * @author: starryfei
  * @date: 2019-01-24 22:33
  **/
-public class FastSkyNettyClient {
+public class FastSkyNettyClient extends SimpleChannelInboundHandler<Object> {
     private static EventLoopGroup work;
-    private BeanFactory beanFactory = BeanFactory.getInstance();
-    public void connect(DataBean dataBean) {
+//    private BeanFactory beanFactory = BeanFactory.getInstance();
+    private RcpResponse response;
+    private Object threadObj = new Object();
+
+    private RcpResponse connect(RcpRequest dataBean) throws InterruptedException {
         work = new NioEventLoopGroup();
         try {
             Bootstrap boot = new Bootstrap();
@@ -41,14 +40,26 @@ public class FastSkyNettyClient {
                     ch.pipeline().addLast(new ObjectDecoder(1024,
                             ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
                     ch.pipeline().addLast(new ObjectEncoder());
-                    ch.pipeline().addLast(new NettyClienthandler(dataBean));
+                    ch.pipeline().addLast(FastSkyNettyClient.this);
                 }
-            });
+            }).option(ChannelOption.SO_KEEPALIVE, true);;
             ChannelFuture future = boot.connect("localhost", 9122).sync();
-            future.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            future.channel().writeAndFlush(dataBean).sync();
+//            response = beanFactory.getBean(dataBean.getClassName());
+            synchronized (threadObj) {
+                threadObj.wait(); // 未收到响应，使线程等待
+            }
+
+            System.out.println(response);
+            if(response != null) {
+                future.channel().closeFuture().sync();
+            }
+            return response;
+        } finally {
+            work.shutdownGracefully();
+
         }
+
     }
 
     /**
@@ -58,23 +69,39 @@ public class FastSkyNettyClient {
      */
     public Object getBean(Class<?> clazz) {
 
-         Proxy.newProxyInstance(clazz.getClassLoader(),new Class[]{clazz}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                DataBean dataBean = new DataBean();
-                dataBean.setClassName(clazz.getName());
-                dataBean.setMethodName(method.getName());
-                dataBean.setArgType(method.getParameterTypes());
-                dataBean.setArgs(args);
-                connect(dataBean);
-                return beanFactory.getBean(clazz);
-            }
-        });
-         return null;
+         return Proxy.newProxyInstance(clazz.getClassLoader(),new Class[]{clazz}, (proxy, method, args) -> {
+             RcpRequest dataBean = new RcpRequest();
+             dataBean.setClassName(clazz.getName());
+             dataBean.setMethodName(method.getName());
+             dataBean.setArgType(method.getParameterTypes());
+             dataBean.setArgs(args);
+             RcpResponse response = connect(dataBean);
+             System.out.println(response);
+             if ("400".equals(response.getStatus())) {
+                 throw new RuntimeException(response.getStatus()+"rcp run error");
+             } else {
+                 return response.getObject();
+             }
+         });
 
     }
 
-    public void destroy(){
-        work.shutdownGracefully();
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object o) throws Exception {
+
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        response = (RcpResponse) msg;
+        synchronized (threadObj) {
+            threadObj.notifyAll(); // 收到响应，唤醒线程
+        }
+//        beanFactory.putBean(response);
     }
 }

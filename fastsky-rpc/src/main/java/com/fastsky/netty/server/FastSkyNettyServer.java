@@ -1,6 +1,6 @@
 package com.fastsky.netty.server;
 
-import com.fastsky.netty.handler.NettyHandler;
+import com.fastsky.netty.handler.ServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -12,7 +12,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 
 /**
  * ClassName: FastSkyNettyServer
- * Description: TODO
+ * Description: Netty 服务提供端实现
  *
  * @author: starryfei
  * @date: 2019-01-24 18:50
@@ -26,7 +26,7 @@ public class FastSkyNettyServer {
     /**
      * 启动server
      */
-    public static void start(int port){
+    public void start(int port){
         final ServerBootstrap server = new ServerBootstrap();
         server.group(work,boos).channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -39,7 +39,7 @@ public class FastSkyNettyServer {
 
                         //添加对象编码器 在服务器对外发送消息的时候自动将实现序列化的POJO对象编码
                         socketChannel.pipeline().addLast(new ObjectEncoder());
-                        socketChannel.pipeline().addLast(new NettyHandler());
+                        socketChannel.pipeline().addLast(new ServerHandler());
 
                     }
                 });
@@ -61,7 +61,7 @@ public class FastSkyNettyServer {
     /**
      * 停止server
      */
-    public static void stop() {
+    public void stop() {
         Runtime.getRuntime().addShutdownHook(new ShutServer());
         try {
             channel.closeFuture().sync();

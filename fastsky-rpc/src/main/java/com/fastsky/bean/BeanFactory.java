@@ -1,4 +1,4 @@
-package com.fastsky.netty.bean;
+package com.fastsky.bean;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,14 +22,17 @@ public class BeanFactory {
         return beanFactory;
     }
 
-    public Object getBean(Class<?> cla) {
-        return bean.get(cla.getName());
+    public RcpResponse getBean(String name) {
+        return bean.get(name);
     }
 
     public void putBean(RcpResponse response) {
         bean.put(response.getName(),response);
 
     }
+
+
+
 
 
 }
