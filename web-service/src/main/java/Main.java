@@ -1,4 +1,4 @@
-import com.fastsky.server.FastSkyServer;
+import com.fastsky.socket.server.FastSkyServer;
 import com.starry.service.impl.HelloServiceImpl;
 
 /**

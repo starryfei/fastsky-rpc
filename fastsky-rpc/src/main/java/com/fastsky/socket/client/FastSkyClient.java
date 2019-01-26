@@ -1,4 +1,4 @@
-package com.fastsky.client;
+package com.fastsky.socket.client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

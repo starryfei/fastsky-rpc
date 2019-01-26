@@ -1,6 +1,6 @@
-package com.fastsky.handler;
+package com.fastsky.netty.handler;
 
-import com.fastsky.netty.DataBean;
+import com.fastsky.netty.bean.DataBean;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 

@@ -1,6 +1,6 @@
 package com.starry;
 
-import com.fastsky.client.FastSkyClient;
+import com.fastsky.socket.FastSkyClient;
 import com.starry.service.HelloService;
 
 /**

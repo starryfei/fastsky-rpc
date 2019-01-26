@@ -1,4 +1,4 @@
-package com.fastsky.server;
+package com.fastsky.socket.server;
 
 import java.net.Socket;
 import java.util.concurrent.ThreadFactory;

@@ -1,4 +1,4 @@
-package com.fastsky.netty;
+package com.fastsky.netty.bean;
 
 import java.io.Serializable;
 

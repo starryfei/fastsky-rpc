@@ -1,6 +1,5 @@
-package com.fastsky.netty;
+package com.fastsky.netty.bean;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class BeanFactory {
 
-    private Map<String,RcpResponse> bean = new ConcurrentHashMap<>(16);
+    private Map<String, RcpResponse> bean = new ConcurrentHashMap<>(16);
     private static  BeanFactory beanFactory = null;
 
     public static BeanFactory getInstance() {

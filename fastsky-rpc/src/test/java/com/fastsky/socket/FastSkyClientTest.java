@@ -1,4 +1,4 @@
-//package com.fastsky.client;
+//package com.fastsky.socket.client;
 //
 //
 //public class FastSkyClientTest {

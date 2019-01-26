@@ -1,8 +1,8 @@
-package com.fastsky.handler;
+package com.fastsky.netty.handler;
 
-import com.fastsky.netty.BeanFactory;
-import com.fastsky.netty.DataBean;
-import com.fastsky.netty.RcpResponse;
+import com.fastsky.netty.bean.BeanFactory;
+import com.fastsky.netty.bean.DataBean;
+import com.fastsky.netty.bean.RcpResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 

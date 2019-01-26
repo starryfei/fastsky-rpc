@@ -1,6 +1,8 @@
-package com.fastsky.netty;
+package com.fastsky.netty.client;
 
-import com.fastsky.handler.NettyClienthandler;
+import com.fastsky.netty.handler.NettyClienthandler;
+import com.fastsky.netty.bean.BeanFactory;
+import com.fastsky.netty.bean.DataBean;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,11 +14,9 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.nio.ByteBuffer;
 
 /**
  * ClassName: FastSkyNettyClient
