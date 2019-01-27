@@ -1,37 +1,89 @@
-## Welcome to GitHub Pages
+### fastsky-rpc 基于socket和netty实现的rpc服务简单框架
 
-You can use the [editor on GitHub](https://github.com/starryfei/fastsky-rcp/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+#### fastsky-rpc-v1.0实现的功能
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+- 1 基于socket实现rpc
+- 2 基于netty实现
 
-### Markdown
+v1.1预计实现
+- ZooKeeper：提供服务注册与发现功能
+- 整合Spring
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+#### fastsky-rpc 使用
 
-- Bulleted
-- List
+#### 基于socket使用
 
-1. Numbered
-2. List
+- 1 定义服务接口
+```java
+public interface HelloService {
 
-**Bold** and _Italic_ and `Code` text
+    String sayHello();
+}
 
-[Link](url) and ![Image](src)
 ```
+- 2 服务提供者
+```java
+public class HelloServiceImpl implements HelloService {
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+    public String sayHello() {
+        return "Hello World";
+    }
+}
+``` 
 
-### Jekyll Themes
+```java
+import com.fastsky.bean.BeanRegister;
+import com.fastsky.socket.server.FastSkyServer;
+import com.starry.service.impl.HelloServiceImpl;
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/starryfei/fastsky-rcp/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+public static void main(String[] args){
+    FastSkyServer skyServer = new FastSkyServer();
+    // 注册服务        
+    BeanRegister.getInstance().registerBeans(HelloServiceImpl.class);
+    skyServer.start();
 
-### Support or Contact
+    }
+```
+- 3 服务消费者
+```java
+import com.fastsky.socket.client.FastSkyClient;
+import com.starry.service.HelloService;
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+public static void main(String[] args) {
+    FastSkyClient client = new FastSkyClient();
+    client.start();
+    HelloService helloService = (HelloService) client.getBean(HelloService.class);
+    String hellp = helloService.sayHello();
+    System.out.println(hellp);
+    client.destroy();
+}
+
+```
+---
+#### 基于netty实现 [参考](https://my.oschina.net/huangyong/blog/361751 "参考")
+
+- 1 服务提供者
+```java
+import com.fastsky.api.HelloServiceImpl;
+import com.fastsky.bean.BeanRegister;
+
+public static void main(String[] args) {
+    // 注册服务    
+    BeanRegister.getInstance().registerBeans(HelloServiceImpl.class);
+    FastSkyNettyServer server = new FastSkyNettyServer();
+    server.start(9122);
+}
+```
+- 2 服务消费者
+```java
+import com.fastsky.api.HelloService;
+
+public static void main(String[] args) {
+    FastSkyNettyClient client = new FastSkyNettyClient();
+    HelloService service = (HelloService) client.getBean(HelloService.class);
+    System.out.println(service.sayHello());
+}
+
+```
