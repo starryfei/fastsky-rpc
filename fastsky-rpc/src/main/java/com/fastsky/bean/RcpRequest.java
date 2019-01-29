@@ -12,11 +12,19 @@ import java.util.Arrays;
  **/
 public class RcpRequest implements Serializable {
     private static final long serialVersionUID = 4228051882802183587L;
-
+    private String id;
     private String className;
     private String methodName;
     private Class<?>[] argType;
     private Object[] args;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getClassName() {
         return className;

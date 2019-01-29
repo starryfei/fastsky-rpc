@@ -3,9 +3,7 @@ package com.fastsky.netty.handler;
 import com.fastsky.bean.BeanRegister;
 import com.fastsky.bean.RcpResponse;
 import com.fastsky.bean.RcpRequest;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 
 /**
  * ClassName: ServerHandler
@@ -13,12 +11,22 @@ import io.netty.channel.SimpleChannelInboundHandler;
  *
  * @author: starryfei
  * @date: 2019-01-24 18:57
+ *
  **/
-public class ServerHandler extends SimpleChannelInboundHandler<Object> {
+@ChannelHandler.Sharable
+public class ServerHandler extends ChannelDuplexHandler {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object obj) throws Exception {
-        RcpRequest request = (RcpRequest) obj;
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println("recive: " + msg);
+        super.channelRead(ctx, msg);
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        super.write(ctx, msg, promise);
+        RcpRequest request = (RcpRequest) msg;
+
         String className = request.getClassName();
         String methodName = request.getMethodName();
         Class[] parTypes = request.getArgType();
@@ -27,6 +35,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         Class<?> clazz = BeanRegister.getInstance().getBean(className);
         // 将数据回传给客户端
         RcpResponse response = new RcpResponse();
+        response.setRequestId(request.getId());
         response.setName(className);
         try {
             Object object = clazz.getMethod(methodName,parTypes).invoke(clazz.newInstance(),args);
@@ -37,13 +46,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object> {
         }
         System.out.println(response);
         // 写消息并将通知关闭
-        channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("recive: " + msg);
-        super.channelRead(ctx, msg);
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override

@@ -10,10 +10,18 @@ import java.io.Serializable;
  * @date: 2019-01-24 23:26
  **/
 public class RcpResponse implements Serializable {
-
+    private String requestId;
     private String name;
     private String status;
     private Object object;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
     public String getName() {
         return name;

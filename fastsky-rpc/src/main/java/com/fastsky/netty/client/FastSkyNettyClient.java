@@ -13,6 +13,7 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import java.lang.reflect.Proxy;
+import java.util.UUID;
 
 /**
  * ClassName: FastSkyNettyClient
@@ -23,7 +24,6 @@ import java.lang.reflect.Proxy;
  **/
 public class FastSkyNettyClient extends SimpleChannelInboundHandler<Object> {
     private static EventLoopGroup work;
-//    private BeanFactory beanFactory = BeanFactory.getInstance();
     private RcpResponse response;
     private Object threadObj = new Object();
 
@@ -45,7 +45,6 @@ public class FastSkyNettyClient extends SimpleChannelInboundHandler<Object> {
             }).option(ChannelOption.SO_KEEPALIVE, true);;
             ChannelFuture future = boot.connect("localhost", 9122).sync();
             future.channel().writeAndFlush(dataBean).sync();
-//            response = beanFactory.getBean(dataBean.getClassName());
             synchronized (threadObj) {
                 threadObj.wait(); // 未收到响应，使线程等待
             }
@@ -71,6 +70,7 @@ public class FastSkyNettyClient extends SimpleChannelInboundHandler<Object> {
 
          return Proxy.newProxyInstance(clazz.getClassLoader(),new Class[]{clazz}, (proxy, method, args) -> {
              RcpRequest dataBean = new RcpRequest();
+             dataBean.setId(UUID.randomUUID().toString());
              dataBean.setClassName(clazz.getName());
              dataBean.setMethodName(method.getName());
              dataBean.setArgType(method.getParameterTypes());
